@@ -4,7 +4,7 @@ import { validateUrl } from '../utils/urlValidator';
 import { ValidationResult } from '../types';
 
 interface UrlInputProps {
-  onExtract: (url: string) => void;
+  onExtract: (url: string, options?: { includeElements?: string; excludeElements?: string }) => void;
   isLoading: boolean;
 }
 
@@ -13,6 +13,8 @@ export const UrlInput: React.FC<UrlInputProps> = ({ onExtract, isLoading }) => {
   const [validation, setValidation] = useState<ValidationResult>({ isValid: false, message: '' });
   const [showValidation, setShowValidation] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
+  const [includeElements, setIncludeElements] = useState('');
+  const [excludeElements, setExcludeElements] = useState('');
 
   useEffect(() => {
     if (url.trim()) {
@@ -27,7 +29,11 @@ export const UrlInput: React.FC<UrlInputProps> = ({ onExtract, isLoading }) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (validation.isValid && !isLoading) {
-      onExtract(url);
+      const options = {
+        includeElements: includeElements.trim() || undefined,
+        excludeElements: excludeElements.trim() || undefined
+      };
+      onExtract(url, options);
     }
   };
 
@@ -116,6 +122,8 @@ export const UrlInput: React.FC<UrlInputProps> = ({ onExtract, isLoading }) => {
                       </label>
                       <input
                         type="text"
+                        value={includeElements}
+                        onChange={(e) => setIncludeElements(e.target.value)}
                         placeholder="article, main, .content"
                         className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:border-blue-500"
                         style={{ color: '#433633' }}
@@ -129,6 +137,8 @@ export const UrlInput: React.FC<UrlInputProps> = ({ onExtract, isLoading }) => {
                       </label>
                       <input
                         type="text"
+                        value={excludeElements}
+                        onChange={(e) => setExcludeElements(e.target.value)}
                         placeholder="nav, footer, .ads"
                         className="w-full px-3 py-2 text-sm border border-gray-300 rounded focus:border-blue-500"
                         style={{ color: '#433633' }}

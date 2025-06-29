@@ -1,5 +1,85 @@
 import { ExtractedContent } from '../types';
 
+// HTML to Markdown conversion function
+const htmlToMarkdown = (element: Element): string => {
+  const processNode = (node: Node): string => {
+    if (node.nodeType === Node.TEXT_NODE) {
+      return node.textContent?.trim() || '';
+    }
+    
+    if (node.nodeType === Node.ELEMENT_NODE) {
+      const el = node as Element;
+      const tagName = el.tagName.toLowerCase();
+      const content = Array.from(el.childNodes).map(child => processNode(child)).join('');
+      
+      switch (tagName) {
+        case 'h1':
+          return `# ${content}\n\n`;
+        case 'h2':
+          return `## ${content}\n\n`;
+        case 'h3':
+          return `### ${content}\n\n`;
+        case 'h4':
+          return `#### ${content}\n\n`;
+        case 'h5':
+          return `##### ${content}\n\n`;
+        case 'h6':
+          return `###### ${content}\n\n`;
+        case 'p':
+          return `${content}\n\n`;
+        case 'br':
+          return '\n';
+        case 'strong':
+        case 'b':
+          return `**${content}**`;
+        case 'em':
+        case 'i':
+          return `*${content}*`;
+        case 'code':
+          return `\`${content}\``;
+        case 'pre':
+          return `\`\`\`\n${content}\n\`\`\`\n\n`;
+        case 'blockquote':
+          return `> ${content}\n\n`;
+        case 'a': {
+          const href = el.getAttribute('href');
+          if (href && content) {
+            return `[${content}](${href})`;
+          }
+          return content;
+        }
+        case 'img': {
+          const src = el.getAttribute('src');
+          const alt = el.getAttribute('alt') || '';
+          if (src) {
+            return `![${alt}](${src})\n\n`;
+          }
+          return '';
+        }
+        case 'ul':
+        case 'ol':
+          return `${content}\n`;
+        case 'li': {
+          const parent = el.parentElement?.tagName.toLowerCase();
+          const prefix = parent === 'ol' ? '1. ' : '- ';
+          return `${prefix}${content}\n`;
+        }
+        case 'div':
+        case 'span':
+        case 'section':
+        case 'article':
+          return content;
+        default:
+          return content;
+      }
+    }
+    
+    return '';
+  };
+  
+  return Array.from(element.childNodes).map(child => processNode(child)).join('');
+};
+
 // Multiple CORS proxy options for better reliability
 const CORS_PROXIES = [
   'https://api.codetabs.com/v1/proxy?quest=',
@@ -31,7 +111,6 @@ const fetchWithProxy = async (url: string, proxyIndex = 0): Promise<string> => {
         'Accept': 'application/json, text/html, */*',
         'User-Agent': 'Mozilla/5.0 (compatible; ContentExtractor/1.0)',
       },
-      timeout: 10000, // 10 second timeout
     });
 
     if (!response.ok) {
@@ -60,7 +139,10 @@ const fetchWithProxy = async (url: string, proxyIndex = 0): Promise<string> => {
   }
 };
 
-export const extractContent = async (url: string): Promise<ExtractedContent> => {
+export const extractContent = async (
+  url: string, 
+  options?: { includeElements?: string; excludeElements?: string }
+): Promise<ExtractedContent> => {
   try {
     // Validate URL format
     const urlObj = new URL(url);
@@ -109,11 +191,20 @@ export const extractContent = async (url: string): Promise<ExtractedContent> => 
                   'Untitled';
     
     // Remove unwanted elements
-    const unwantedSelectors = [
+    let unwantedSelectors = [
       'script', 'style', 'nav', 'header', 'footer', 'aside',
       '.advertisement', '.ads', '.social-share', '.comments',
       '[class*="ad-"]', '[id*="ad-"]', '.sidebar'
     ];
+    
+    // Add user-specified exclude elements
+    if (options?.excludeElements) {
+      const userExcludeSelectors = options.excludeElements
+        .split(',')
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
+      unwantedSelectors = [...unwantedSelectors, ...userExcludeSelectors];
+    }
     
     unwantedSelectors.forEach(selector => {
       const elements = doc.querySelectorAll(selector);
@@ -121,7 +212,7 @@ export const extractContent = async (url: string): Promise<ExtractedContent> => 
     });
     
     // Try to find main content areas in order of preference
-    const contentSelectors = [
+    let contentSelectors = [
       'main',
       'article',
       '[role="main"]',
@@ -133,6 +224,16 @@ export const extractContent = async (url: string): Promise<ExtractedContent> => 
       '.main-content',
       'body'
     ];
+    
+    // Use user-specified include elements if provided
+    if (options?.includeElements) {
+      const userIncludeSelectors = options.includeElements
+        .split(',')
+        .map(s => s.trim())
+        .filter(s => s.length > 0);
+      // Prioritize user selectors but keep fallbacks
+      contentSelectors = [...userIncludeSelectors, ...contentSelectors];
+    }
     
     let contentElement: Element | null = null;
     for (const selector of contentSelectors) {
@@ -146,22 +247,29 @@ export const extractContent = async (url: string): Promise<ExtractedContent> => 
       contentElement = doc.body;
     }
     
-    // Extract and clean text content
-    let textContent = contentElement?.textContent || '';
+    // Extract and convert HTML to Markdown
+    let markdownContent = '';
     
-    if (!textContent.trim()) {
+    if (!contentElement) {
+      throw new Error('No readable content found on the page');
+    }
+    
+    // Convert HTML elements to Markdown
+    markdownContent = htmlToMarkdown(contentElement);
+    
+    if (!markdownContent.trim()) {
       throw new Error('No readable content found on the page');
     }
     
     // Clean up whitespace and normalize
-    textContent = textContent
-      .replace(/\s+/g, ' ') // Replace multiple whitespace with single space
-      .replace(/\n\s*\n/g, '\n\n') // Preserve paragraph breaks
+    markdownContent = markdownContent
+      .replace(/\n{3,}/g, '\n\n') // Replace multiple newlines with double newlines
       .replace(/^\s+|\s+$/gm, '') // Trim lines
       .trim();
     
     // Count words (excluding very short "words")
-    const wordCount = textContent
+    const plainText = markdownContent.replace(/[#*_`[\]()]/g, ''); // Remove markdown syntax for word count
+    const wordCount = plainText
       .split(/\s+/)
       .filter(word => word.length > 1)
       .length;
@@ -172,7 +280,7 @@ export const extractContent = async (url: string): Promise<ExtractedContent> => 
     
     return {
       title: title.substring(0, 200), // Limit title length
-      content: textContent,
+      content: markdownContent,
       url,
       wordCount,
       extractedAt: new Date().toISOString()

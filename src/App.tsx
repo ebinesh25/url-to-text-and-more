@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import { useState } from 'react';
 import { AlertCircle, X } from 'lucide-react';
 import { Header } from './components/Header';
 import { UrlInput } from './components/UrlInput';
@@ -12,13 +12,13 @@ function App() {
   const [isLoading, setIsLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  const handleExtractContent = async (url: string) => {
+  const handleExtractContent = async (url: string, options?: { includeElements?: string; excludeElements?: string }) => {
     setIsLoading(true);
     setError(null);
     setContent(null);
 
     try {
-      const extractedContent = await extractContent(url);
+      const extractedContent = await extractContent(url, options);
       setContent(extractedContent);
     } catch (err) {
       const errorMessage = err instanceof Error ? err.message : 'An unexpected error occurred';
