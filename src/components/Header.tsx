@@ -26,7 +26,7 @@ export const Header: React.FC = () => {
               href="https://www.linkedin.com/in/ebinesh/" 
               target="_blank" 
               rel="noopener noreferrer"
-              className="bg:white text-black flex items-center gap-1.5 md:gap-2 px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm font-medium text-white rounded-lg transition-all hover:opacity-90"
+              className="bg:white text-black flex items-center gap-1.5 md:gap-2 px-3 py-1.5 md:px-4 md:py-2 text-xs md:text-sm font-medium rounded-lg transition-all hover:opacity-90"
               style={{ border: '1px solid #5c5552' }}
 
             >
