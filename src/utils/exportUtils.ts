@@ -84,7 +84,7 @@ export const downloadAsHtml = (content: ExtractedContent): void => {
 <body>
   <div class="header">
     <h1>${escapeHtml(content.title)}</h1>
-    <p>Extracted by ContentHarvest</p>
+    <p>Extracted by Extract From Url</p>
   </div>
   <div class="meta">
     <p><strong>Source:</strong> <a href="${escapeHtml(content.url)}" target="_blank" style="color: #5c5552;">${escapeHtml(content.url)}</a></p>
@@ -97,7 +97,7 @@ export const downloadAsHtml = (content: ExtractedContent): void => {
     ).join('')}
   </div>
   <div class="watermark">
-    Extracted using ContentHarvest - Extract, Preview, Export
+    Extracted using Extract From Url - Extract, Preview, Export
   </div>
 </body>
 </html>`;
@@ -120,7 +120,7 @@ ${content.content.split('\n\n').map(paragraph => paragraph.trim()).join('\n\n')}
 
 ---
 
-*Extracted using ContentHarvest - Extract, Preview, Export*
+*Extracted using Extract From Url - Extract, Preview, Export*
 `;
   
   const blob = new Blob([markdownContent], { type: 'text/markdown' });
@@ -142,7 +142,7 @@ const generateFilename = (url: string, extension: string): string => {
     
     return filename.toLowerCase();
   } catch {
-    return `contentharvest-${Date.now()}.${extension}`;
+    return `Extract From Url-${Date.now()}.${extension}`;
   }
 };
 

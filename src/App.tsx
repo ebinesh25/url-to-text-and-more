@@ -78,7 +78,7 @@ function App() {
             background: 'rgba(247, 240, 245, 0.8)',
             borderColor: '#decbb7'
           }}>
-            <p className="font-medium" style={{ color: '#5c5552' }}>ContentHarvest</p>
+            <p className="font-medium" style={{ color: '#5c5552' }}>Extract From Url</p>
             <p className="mt-1">Extract, preview, and export web content with ease</p>
             <p className="mt-2 text-xs">
               <strong>Note:</strong> Some websites may block content extraction due to CORS policies.

@@ -13,9 +13,6 @@ export const UrlInput: React.FC<UrlInputProps> = ({ onExtract, isLoading }) => {
   const [validation, setValidation] = useState<ValidationResult>({ isValid: false, message: '' });
   const [showValidation, setShowValidation] = useState(false);
   const [showAdvanced, setShowAdvanced] = useState(false);
-  const [outputFormat, setOutputFormat] = useState('text');
-  const [extractMainContent, setExtractMainContent] = useState(true);
-  const [waitForJS, setWaitForJS] = useState(false);
 
   useEffect(() => {
     if (url.trim()) {
@@ -95,50 +92,6 @@ export const UrlInput: React.FC<UrlInputProps> = ({ onExtract, isLoading }) => {
               )}
             </div>
 
-            {/* Output Format */}
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-              <div>
-                <label className="block text-sm font-medium mb-2" style={{ color: '#5c5552' }}>
-                  Output Format:
-                </label>
-                <div className="relative">
-                  <select
-                    value={outputFormat}
-                    onChange={(e) => setOutputFormat(e.target.value)}
-                    className="w-full px-4 py-3 border-2 border-gray-300 rounded-lg appearance-none bg-white focus:border-blue-500 transition-all"
-                    style={{ color: '#433633' }}
-                  >
-                    <option value="text">Text</option>
-                    <option value="html">HTML</option>
-                    <option value="markdown">Markdown</option>
-                  </select>
-                  <ChevronDown className="absolute right-3 top-1/2 transform -translate-y-1/2 w-5 h-5 text-gray-400 pointer-events-none" />
-                </div>
-              </div>
-
-              {/* Main Content Toggle */}
-              <div className="flex items-center">
-                <label className="flex items-center cursor-pointer">
-                  <input
-                    type="checkbox"
-                    checked={extractMainContent}
-                    onChange={(e) => setExtractMainContent(e.target.checked)}
-                    className="sr-only"
-                  />
-                  <div className={`relative w-12 h-6 rounded-full transition-colors ${
-                    extractMainContent ? 'bg-blue-500' : 'bg-gray-300'
-                  }`}>
-                    <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
-                      extractMainContent ? 'translate-x-6' : 'translate-x-0'
-                    }`}></div>
-                  </div>
-                  <span className="ml-3 text-sm font-medium" style={{ color: '#5c5552' }}>
-                    Extract Only Main Content with AI
-                  </span>
-                </label>
-              </div>
-            </div>
-
             {/* Advanced Options Toggle */}
             <div className="border-t pt-4" style={{ borderColor: '#decbb7' }}>
               <button
@@ -155,28 +108,9 @@ export const UrlInput: React.FC<UrlInputProps> = ({ onExtract, isLoading }) => {
               {showAdvanced && (
                 <div className="mt-4 space-y-4 p-4 rounded-lg" style={{ background: '#f7f0f5' }}>
                   <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    {/* Wait for JS */}
-                    <label className="flex items-center cursor-pointer">
-                      <input
-                        type="checkbox"
-                        checked={waitForJS}
-                        onChange={(e) => setWaitForJS(e.target.checked)}
-                        className="sr-only"
-                      />
-                      <div className={`relative w-12 h-6 rounded-full transition-colors ${
-                        waitForJS ? 'bg-blue-500' : 'bg-gray-300'
-                      }`}>
-                        <div className={`absolute top-1 left-1 w-4 h-4 bg-white rounded-full transition-transform ${
-                          waitForJS ? 'translate-x-6' : 'translate-x-0'
-                        }`}></div>
-                      </div>
-                      <span className="ml-3 text-sm" style={{ color: '#5c5552' }}>
-                        Wait for JS
-                      </span>
-                    </label>
 
                     {/* Include Elements */}
-                    <div>
+                    <div className="md:col-span-2">
                       <label className="block text-xs font-medium mb-1" style={{ color: '#8f857d' }}>
                         Include Elements
                       </label>
@@ -222,7 +156,7 @@ export const UrlInput: React.FC<UrlInputProps> = ({ onExtract, isLoading }) => {
                   </>
                 ) : (
                   <>
-                    <Globe className="w-5 h-5 mr-2" />
+                    <Globe className="hidden sm:block w-5 h-5 mr-2" />
                     Extract Content
                   </>
                 )}
