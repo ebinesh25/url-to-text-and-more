@@ -72,7 +72,7 @@ export const extractContent = async (url: string): Promise<ExtractedContent> => 
     
     try {
       htmlContent = await fetchWithProxy(url);
-    } catch (proxyError) {
+    } catch {
       // If all proxies fail, provide a helpful error message
       throw new Error(
         'Unable to fetch content due to CORS restrictions. This can happen when:\n' +
@@ -93,7 +93,7 @@ export const extractContent = async (url: string): Promise<ExtractedContent> => 
     
     try {
       doc = parser.parseFromString(htmlContent, 'text/html');
-    } catch (parseError) {
+    } catch {
       throw new Error('Failed to parse HTML content');
     }
 

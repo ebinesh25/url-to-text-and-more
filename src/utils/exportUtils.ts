@@ -3,7 +3,7 @@ import { ExtractedContent } from '../types';
 export const copyToClipboard = async (content: ExtractedContent): Promise<void> => {
   try {
     await navigator.clipboard.writeText(content.content);
-  } catch (error) {
+  } catch {
     // Fallback for older browsers
     const textArea = document.createElement('textarea');
     textArea.value = content.content;

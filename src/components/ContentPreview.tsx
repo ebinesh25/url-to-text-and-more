@@ -1,5 +1,5 @@
 import React from 'react';
-import { FileText, Clock, Hash, Globe, Copy } from 'lucide-react';
+import { Clock, Hash, Globe, Copy } from 'lucide-react';
 import { ExtractedContent } from '../types';
 
 interface ContentPreviewProps {

@@ -1,5 +1,5 @@
 import React, { useState } from 'react';
-import { Copy, Download, FileText, Code, FileDown, Check, X } from 'lucide-react';
+import { Copy, FileText, Code, FileDown, Check, X } from 'lucide-react';
 import { ExtractedContent } from '../types';
 import { copyToClipboard, downloadAsText, downloadAsHtml, downloadAsMarkdown } from '../utils/exportUtils';
 
